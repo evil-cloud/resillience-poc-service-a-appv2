@@ -38,6 +38,29 @@ pipeline {
             }
         }
 
+        stage('Static Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        def startTime = System.currentTimeMillis()
+                        echo "[ANALYSIS] [INFO] ${getTimestamp()} - Running static code analysis with SonarQube..."
+
+                        sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=${env.SONAR_PROJECT} \
+                            -Dsonar.sources=app \
+                            -Dsonar.language=py \
+                            -Dsonar.host.url=${env.SONAR_HOST} \
+                            -Dsonar.login=\$SONAR_TOKEN
+                        """
+
+                        def duration = (System.currentTimeMillis() - startTime) / 1000
+                        echo "[ANALYSIS] [SUCCESS] ${getTimestamp()} - SonarQube analysis completed in ${duration} seconds."
+                    }
+                }
+            }
+        }
+
         stage('Push Image') {
             steps {
                 container('dind') {
