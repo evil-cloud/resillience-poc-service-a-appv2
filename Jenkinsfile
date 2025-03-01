@@ -45,19 +45,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Update Image in ArgoCD') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'argocd-token', variable: 'ARGOCD_TOKEN')]) {
-                        sh """
-                        argocd login argocd.infraops.us --username admin --password \$ARGOCD_TOKEN --grpc-web
-                        argocd app set ${ARGOCD_APP_NAME} --parameter image.tag=${SHORT_SHA}
-                        argocd app sync ${ARGOCD_APP_NAME}
-                        """
-                    }
-                }
-            }
-        }
     }
 }
