@@ -1,4 +1,4 @@
-// Pipeline - v1.0.9
+// Pipeline - v1.0.10
 pipeline {
     agent { label 'jenkins-jenkins-agent' }
 
@@ -29,7 +29,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Push Docker Image') {
             steps {
                 container('dind') {
