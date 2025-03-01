@@ -1,4 +1,4 @@
-// Pipeline version: v1.0.20
+// Pipeline version: v1.0.21
 pipeline {
     agent { label 'jenkins-jenkins-agent' }
 
@@ -6,9 +6,9 @@ pipeline {
         IMAGE_NAME      = "d4rkghost47/python-circuit-svc-1v2"
         REGISTRY        = "https://index.docker.io/v1/"
         SHORT_SHA       = "${GIT_COMMIT[0..7]}"
-        ARGOCD_APP_NAME = "python-svc-1v2"
         SONAR_PROJECT   = "python-circuit-svc-1v2"
         SONAR_HOST      = "http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000"
+        TRIVY_HOST      = "http://trivy.trivy-system.svc.cluster.local:4954"
         TZ              = "America/Guatemala"  
     }
 
@@ -23,20 +23,6 @@ pipeline {
             }
         }
 
-        stage('Build Image') {
-            steps {
-                container('dind') {
-                    script {
-                        echo "[BUILD] [INFO] ${getTimestamp()} - Building Docker image..."
-                        sh """
-                        docker build -t ${IMAGE_NAME}:${env.SHORT_SHA} .
-                        docker tag ${IMAGE_NAME}:${env.SHORT_SHA} ${IMAGE_NAME}:latest
-                        """
-                        echo "[BUILD] [SUCCESS] ${getTimestamp()} - Build completed."
-                    }
-                }
-            }
-        }
 
         stage('Static Code Analysis') {
             steps {
@@ -61,6 +47,36 @@ pipeline {
             }
         }
 
+
+        stage('Build Image') {
+            steps {
+                container('dind') {
+                    script {
+                        echo "[BUILD] [INFO] ${getTimestamp()} - Building Docker image..."
+                        sh """
+                        docker build -t ${IMAGE_NAME}:${env.SHORT_SHA} .
+                        docker tag ${IMAGE_NAME}:${env.SHORT_SHA} ${IMAGE_NAME}:latest
+                        """
+                        echo "[BUILD] [SUCCESS] ${getTimestamp()} - Build completed."
+                    }
+                }
+            }
+        }
+
+
+        stage('Security Scan') {
+            steps {
+                script {
+                    echo "[SECURITY SCAN] [INFO] ${getTimestamp()} - Running Trivy security scan..."
+                    sh """
+                    trivy client --remote ${TRIVY_HOST} image ${IMAGE_NAME}:${env.SHORT_SHA} --severity HIGH,CRITICAL
+                    """
+                    echo "[SECURITY SCAN] [SUCCESS] ${getTimestamp()} - Security scan completed."
+                }
+            }
+        }
+    
+    
         stage('Push Image') {
             steps {
                 container('dind') {
