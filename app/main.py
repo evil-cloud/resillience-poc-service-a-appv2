@@ -108,3 +108,7 @@ async def health_check():
     log_json("info", "service-a", "Health check endpoint called.", 200)
     return {"status": "ok", "service": "A"}
 
+@app.get("/api/v1/consul/version")
+async def get_version():
+    return {"version": "1.0.0"}
+
