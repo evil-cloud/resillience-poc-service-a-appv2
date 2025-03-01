@@ -51,7 +51,7 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'argocd-token', variable: 'ARGOCD_TOKEN')]) {
                         sh """
-                        argocd login my-argocd-server --username admin --password \$ARGOCD_TOKEN
+                        argocd login argocd.infraops.us --username admin --password \$ARGOCD_TOKEN
                         argocd app set ${ARGOCD_APP_NAME} --parameter image.tag=${SHORT_SHA}
                         argocd app sync ${ARGOCD_APP_NAME}
                         """
