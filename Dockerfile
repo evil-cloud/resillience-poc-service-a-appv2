@@ -1,3 +1,4 @@
+## Dockerfile version: v1.0.1
 # 🛠️ Etapa 1: Construcción
 FROM python:3.9-slim AS builder
 
