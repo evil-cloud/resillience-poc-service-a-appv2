@@ -69,7 +69,7 @@ pipeline {
                 script {
                     echo "[SECURITY SCAN] [INFO] ${getTimestamp()} - Running Trivy security scan..."
                     sh """
-                    trivy client --remote ${TRIVY_HOST} image ${IMAGE_NAME}:${env.SHORT_SHA} --severity HIGH,CRITICAL
+                    trivy image --server ${TRIVY_HOST} ${IMAGE_NAME}:${env.SHORT_SHA} --severity HIGH,CRITICAL
                     """
                     echo "[SECURITY SCAN] [SUCCESS] ${getTimestamp()} - Security scan completed."
                 }
