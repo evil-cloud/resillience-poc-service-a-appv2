@@ -110,5 +110,5 @@ async def health_check():
 
 @app.get("/api/v1/consul/version")
 async def get_version():
-    return {"version": "1.0.1"}
+    return {"version": "1.0.2"}
 
