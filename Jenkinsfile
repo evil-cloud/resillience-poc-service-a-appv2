@@ -66,12 +66,15 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-                script {
-                    echo "[SECURITY SCAN] [INFO] ${getTimestamp()} - Running Trivy security scan..."
-                    sh """
-                    trivy image --server ${TRIVY_HOST} ${IMAGE_NAME}:${env.SHORT_SHA} --severity HIGH,CRITICAL
-                    """
-                    echo "[SECURITY SCAN] [SUCCESS] ${getTimestamp()} - Security scan completed."
+                container('dind') {
+
+                    script {
+                        echo "[SECURITY SCAN] [INFO] ${getTimestamp()} - Running Trivy security scan..."
+                        sh """
+                        trivy image --server ${TRIVY_HOST} ${IMAGE_NAME}:${env.SHORT_SHA} --severity HIGH,CRITICAL
+                        """
+                        echo "[SECURITY SCAN] [SUCCESS] ${getTimestamp()} - Security scan completed."
+                    }
                 }
             }
         }
